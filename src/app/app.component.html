@@ -1,0 +1,8 @@
+<button (click)="runTrainIteration()">Run Train iteration</button>
+<button (click)="backgroundTraining()">Background training</button>
+<button (click)="stop()">Stop training</button>
+<patient-table [patientData]="trainingData.slice(0,50)"></patient-table>
+
+<button (click)="runTest()">Test</button>
+<patient-table [patientData]="testData"></patient-table>
+<canvas id="canvas"></canvas>

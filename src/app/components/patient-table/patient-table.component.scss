@@ -1,0 +1,50 @@
+.dead-letter-holder {
+    padding: 15px 15px 30px 15px;
+    font-size: 16px;
+
+    .dead-letter-table {
+      font-size: 12px;
+      margin-top: 10px;
+      border: 1px solid #e9e9e9;
+      width: 100%;
+      border-spacing: 1px 0;
+      td:first {
+        border-top: 0px !important;
+      }
+      th {
+        text-align: left;
+        background: #e9e9e9;
+      }
+      td {
+        border-top: 1px solid #eee;
+      }
+      tr.success {
+        background: green !important;
+      }
+      tr.intermediate {
+        background: yellow !important;
+      }
+      tr.failure {
+        background: red !important;
+      }
+      
+      tr:nth-child(even) {
+        background: #f8f9fa;
+      }
+      td:nth-child(1),
+      th:nth-child(1) {
+        text-align: left;
+      }
+      td:nth-child(2),
+      th:nth-child(2) {
+        text-align: left;
+      }
+
+      td,
+      th,
+      tr {
+        margin: 0;
+        padding: 5px 10px;
+      }
+    }
+  }

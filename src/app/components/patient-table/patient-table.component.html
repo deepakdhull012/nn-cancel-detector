@@ -1,0 +1,51 @@
+<div class="dead-letter-holder card">
+    <h1>{{patientData?.length}} {{100 - (getFailedLength() / (patientData.length || 1)) * 100}}</h1>
+    
+    <table class="dead-letter-table">
+      <tr>
+        <th>Index</th>
+        <th>Smoker</th>
+        <th>Yellow Fingers</th>
+        <th>Anxiety</th>
+        <th>Peer Pressure</th>
+        <th>Chronic Disease</th>
+        <th>Fatigue</th>
+
+        <th>Allergy</th>
+        <th>Wheezing</th>
+        <th>Alcohol Consumer</th>
+        <th>Coughing</th>
+
+        <th>Breath Shortness</th>
+        <th>Swallowing Difficulty</th>
+        <th>Chest Pain</th>
+        <th>Has Cancer</th>
+        <th>Accuracy Score</th>
+
+        <th>n1</th>
+        <th>n2</th>
+      </tr>
+      <tr *ngFor="let patient of patientData; let i = index;" [ngClass]="{'success': patient.accuracy_score >= 85, 'intermediate': patient.accuracy_score > 50 && patient.accuracy_score<85, 'failure': patient.accuracy_score < 50 }">
+        <td>{{ i+1 }}</td>
+        <td>{{ getStringValue(patient.SMOKING) }}</td>
+        <td>{{ getStringValue(patient.YELLOW_FINGERS) }}</td>
+        <td>{{ getStringValue(patient.ANXIETY) }}</td>
+        <td>{{ getStringValue(patient.PEER_PRESSURE) }}</td>
+        <td>{{ getStringValue(patient.CHRONIC_DISEASE) }}</td>
+        <td>{{ getStringValue(patient.FATIGUE) }}</td>
+
+        <td>{{ getStringValue(patient.ALLERGY) }}</td>
+        <td>{{ getStringValue(patient.WHEEZING) }}</td>
+        <td>{{ getStringValue(patient.ALCOHOL_CONSUMING) }}</td>
+        <td>{{ getStringValue(patient.COUGHING) }}</td>
+
+        <td>{{ getStringValue(patient.SHORTNESS_OF_BREATH) }}</td>
+        <td>{{ getStringValue(patient.SWALLOWING_DIFFICULTY) }}</td>
+        <td>{{ getStringValue(patient.CHEST_PAIN) }}</td>
+        <td>{{ getStringValue(patient.LUNG_CANCER) }}</td>
+        <td>{{ patient.accuracy_score}}</td>
+        <td>{{ patient.n1_score}}</td>
+        <td>{{ patient.n2_score}}</td>
+      </tr>
+    </table>
+  </div>
