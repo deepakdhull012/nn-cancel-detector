@@ -23,6 +23,7 @@ export interface ILungCancerData {
     CHEST_PAIN: number,
     LUNG_CANCER: number,
     accuracy_score: number;
+    prediction: string;
     n1_score: number;
     n2_score: number;
 }

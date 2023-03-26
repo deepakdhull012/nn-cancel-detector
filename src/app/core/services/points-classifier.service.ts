@@ -11,8 +11,10 @@ import { Subject } from 'rxjs';
 export class PointsClassifierService {
   public trainingData: Array<ILungCancerData> = [];
   public testData: Array<ILungCancerData> = [];
-  private noOfEpochs = 100;
+  private noOfEpochs = 1;
   public onClassificationDone: Subject<void> = new Subject();
+
+  public nonCancerousFalse = 0;
 
   public trainCommand: Subject<void> = new Subject();
   public testCommand: Subject<void> = new Subject();
@@ -35,7 +37,7 @@ export class PointsClassifierService {
      this.backgroundTraining.subscribe(_ => {
       this.intv$ = setInterval(() => {
         this.startTraining();
-      },100)
+      },20)
     })
 
     this.stopTraining.subscribe(_ => {
@@ -51,17 +53,28 @@ export class PointsClassifierService {
       brain.inputDimension,
       brain.outputDimension
     );
-    this.utilService.fetchData('/assets/data.json').subscribe((data) => {
+    this.trainingData = [];
+    this.testData = [];
+    this.utilService.fetchData('/assets/data.json').subscribe((data: ILungCancerData[]) => {
       console.error("data", data);
-      this.trainingData = [...data.slice(0, 275)];
-      this.testData = [...data.slice(275)];
+      data.forEach((r, i) => {
+        if (i%6 === 0) {
+          this.testData.push(r);
+        } else {
+          this.trainingData.push(r);
+        }
+      })
+      // this.trainingData = [...data.slice(0,300)];
+      // this.testData = [...data.slice(0,100)];
       this.onClassificationDone.next();
       //this.startTraining();
     });
   }
 
   private startTraining(): void {
+    let nonCancerous = 0;
     let wothoutCancerTrained = 0;
+    let nonCancerousFalse = 0;
     for (let epoch = 0; epoch < this.noOfEpochs; epoch++) {
       this.trainingData.forEach((entry, index) => {
         if (entry.LUNG_CANCER === 1) {
@@ -83,22 +96,30 @@ export class PointsClassifierService {
             entry.WHEEZING,
             entry.YELLOW_FINGERS,
           ],
-          [entry.LUNG_CANCER === 2 ? 1 : 0, entry.LUNG_CANCER === 1 ? 1 : 0]
+          [entry.LUNG_CANCER === 2 ? 1 : 0]
         );
-        entry.accuracy_score = 100 - (this.brainService.errorForCurrentSet * 100);
-        console.error(entry.accuracy_score)
+
+        if (entry.LUNG_CANCER === 1) {
+          nonCancerous++;
+          if (this.brainService.errorForCurrentSet >= 0.5) {
+            nonCancerousFalse++;
+          }
+        }
+        this.setResultOnEntry(entry);
+        
         // console.log(
         //   `Accumulated error for each record ${index} is ${this.brainService.errorForCurrentSet} ${wothoutCancerTrained}`
         // );
         this.brainService.errorForCurrentSet = 0;
       });
+      this.nonCancerousFalse = (nonCancerousFalse / nonCancerous) * 100;
     }
-    console.error('*** TESTING NOW ****');
+    console.error('*** TRAINING DONE ****');
    
   }
 
   private testBrain(): void {
-    const BUFFER = 0.25;
+    const BUFFER = 0.20;
     this.brainService.errorForCurrentSet = 0;
     let totalCases = 0;
     let nonCancerous = 0;
@@ -125,12 +146,10 @@ export class PointsClassifierService {
           entry.WHEEZING,
           entry.YELLOW_FINGERS,
         ],
-        [entry.LUNG_CANCER === 2 ? 1 : 0, entry.LUNG_CANCER === 1 ? 1 : 0],
+        [entry.LUNG_CANCER === 2 ? 1 : 0],
         true
       );
-      entry.accuracy_score = 100 - (this.brainService.errorForCurrentSet * 100);
-      entry.n1_score = this.brainService.n1ForCurrent;
-      entry.n2_score = this.brainService.n2ForCurrent;
+      this.setResultOnEntry(entry);
       totalCases++;
       if (
         this.brainService.errorForCurrentSet > BUFFER &&
@@ -166,6 +185,7 @@ export class PointsClassifierService {
 
       this.brainService.errorForCurrentSet = 0;
     });
+    this.nonCancerousFalse = (nonCancerousFalse / nonCancerous) * 100;
     console.error(
       'False %',
       (falseCases / totalCases) * 100,
@@ -178,5 +198,19 @@ export class PointsClassifierService {
       'nonCancerousFalse',
       (nonCancerousFalse / nonCancerous) * 100
     );
+  }
+
+  private setResultOnEntry(entry: ILungCancerData): void {
+    const BUFFER = 0.20;
+    entry.accuracy_score = 100 - (this.brainService.errorForCurrentSet * 100);
+        entry.n1_score = this.brainService.n1ForCurrent;
+      entry.n2_score = this.brainService.n2ForCurrent;
+        if (this.brainService.errorForCurrentSet < BUFFER) {
+          entry.prediction = "Confidently " + (entry.n1_score > entry.n2_score ? "Yes" : "No");
+        } else if (this.brainService.errorForCurrentSet < 0.5) {
+          entry.prediction = "Unsure but towards " + (entry.n1_score > entry.n2_score ? "Yes" : "No");
+        } else {
+          entry.prediction = "Wrong but " + (entry.n1_score > entry.n2_score ? "Yes" : "No");
+        }
   }
 }

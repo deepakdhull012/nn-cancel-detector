@@ -1,51 +1,75 @@
 <div class="dead-letter-holder card">
-    <h1>{{patientData?.length}} {{100 - (getFailedLength() / (patientData.length || 1)) * 100}}</h1>
-    
+  <h3>
+    Confidently Sure: {{getCriteriaPercentage(80,100) | percent}}<mat-progress-bar class="example-margin"
+      [color]="safe_color" [value]="getCriteriaPercentage(80,100) * 100" [bufferValue]="100">
+    </mat-progress-bar>
+  </h3>
+  <h3>
+    Partly Sure: {{getCriteriaPercentage(50,80) | percent}}<mat-progress-bar class="example-margin"
+      [color]="accent_color" [value]="getCriteriaPercentage(50,80) * 100" [bufferValue]="100">
+    </mat-progress-bar>
+  </h3>
+  <h3>
+    Wrong: {{getCriteriaPercentage(0,50) | percent}}<mat-progress-bar class="example-margin" [color]="warn_color"
+      [value]="getCriteriaPercentage(0,50) * 100" [bufferValue]="100">
+    </mat-progress-bar>
+  </h3>
+
+
+  <h3>{{label}}</h3>
+  <cdk-virtual-scroll-viewport [itemSize]="20">
     <table class="dead-letter-table">
-      <tr>
-        <th>Index</th>
-        <th>Smoker</th>
-        <th>Yellow Fingers</th>
-        <th>Anxiety</th>
-        <th>Peer Pressure</th>
-        <th>Chronic Disease</th>
-        <th>Fatigue</th>
+      <thead>
+        <tr>
+          <th>Index</th>
+          <th>Smoker</th>
+          <th>Yellow Fingers</th>
+          <th>Anxiety</th>
+          <th>Peer Pressure</th>
+          <th>Chronic Disease</th>
+          <th>Fatigue</th>
 
-        <th>Allergy</th>
-        <th>Wheezing</th>
-        <th>Alcohol Consumer</th>
-        <th>Coughing</th>
+          <th>Allergy</th>
+          <th>Wheezing</th>
+          <th>Alcohol Consumer</th>
+          <th>Coughing</th>
 
-        <th>Breath Shortness</th>
-        <th>Swallowing Difficulty</th>
-        <th>Chest Pain</th>
-        <th>Has Cancer</th>
-        <th>Accuracy Score</th>
+          <th>Breath Shortness</th>
+          <th>Swallowing Difficulty</th>
+          <th>Chest Pain</th>
+          <th>Has Cancer</th>
+          <th>Prediction</th>
+          <th>Accuracy Score</th>
+          <th>Cancer Percentage</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *cdkVirtualFor="let patient of patientData; let i = index;"
+          [ngClass]="{'success': patient.accuracy_score >= 80, 'intermediate': patient.accuracy_score >= 50 && patient.accuracy_score<80, 'failure': patient.accuracy_score < 50 }">
+          <td>{{ i+1 }}</td>
+          <td>{{ getStringValue(patient.SMOKING) }}</td>
+          <td>{{ getStringValue(patient.YELLOW_FINGERS) }}</td>
+          <td>{{ getStringValue(patient.ANXIETY) }}</td>
+          <td>{{ getStringValue(patient.PEER_PRESSURE) }}</td>
+          <td>{{ getStringValue(patient.CHRONIC_DISEASE) }}</td>
+          <td>{{ getStringValue(patient.FATIGUE) }}</td>
 
-        <th>n1</th>
-        <th>n2</th>
-      </tr>
-      <tr *ngFor="let patient of patientData; let i = index;" [ngClass]="{'success': patient.accuracy_score >= 85, 'intermediate': patient.accuracy_score > 50 && patient.accuracy_score<85, 'failure': patient.accuracy_score < 50 }">
-        <td>{{ i+1 }}</td>
-        <td>{{ getStringValue(patient.SMOKING) }}</td>
-        <td>{{ getStringValue(patient.YELLOW_FINGERS) }}</td>
-        <td>{{ getStringValue(patient.ANXIETY) }}</td>
-        <td>{{ getStringValue(patient.PEER_PRESSURE) }}</td>
-        <td>{{ getStringValue(patient.CHRONIC_DISEASE) }}</td>
-        <td>{{ getStringValue(patient.FATIGUE) }}</td>
+          <td>{{ getStringValue(patient.ALLERGY) }}</td>
+          <td>{{ getStringValue(patient.WHEEZING) }}</td>
+          <td>{{ getStringValue(patient.ALCOHOL_CONSUMING) }}</td>
+          <td>{{ getStringValue(patient.COUGHING) }}</td>
 
-        <td>{{ getStringValue(patient.ALLERGY) }}</td>
-        <td>{{ getStringValue(patient.WHEEZING) }}</td>
-        <td>{{ getStringValue(patient.ALCOHOL_CONSUMING) }}</td>
-        <td>{{ getStringValue(patient.COUGHING) }}</td>
+          <td>{{ getStringValue(patient.SHORTNESS_OF_BREATH) }}</td>
+          <td>{{ getStringValue(patient.SWALLOWING_DIFFICULTY) }}</td>
+          <td>{{ getStringValue(patient.CHEST_PAIN) }}</td>
+          <td><b>{{ getStringValue(patient.LUNG_CANCER) }}</b></td>
+          <td><b>{{ patient.prediction }}</b></td>
+          <td><b>{{ patient.accuracy_score}}</b> </td>
 
-        <td>{{ getStringValue(patient.SHORTNESS_OF_BREATH) }}</td>
-        <td>{{ getStringValue(patient.SWALLOWING_DIFFICULTY) }}</td>
-        <td>{{ getStringValue(patient.CHEST_PAIN) }}</td>
-        <td>{{ getStringValue(patient.LUNG_CANCER) }}</td>
-        <td>{{ patient.accuracy_score}}</td>
-        <td>{{ patient.n1_score}}</td>
-        <td>{{ patient.n2_score}}</td>
-      </tr>
+          <td><b>{{ patient.n1_score | percent}}</b></td>
+          <!-- <td>{{ patient.n2_score}}</td> -->
+        </tr>
+      </tbody>
     </table>
-  </div>
+  </cdk-virtual-scroll-viewport>
+</div>
