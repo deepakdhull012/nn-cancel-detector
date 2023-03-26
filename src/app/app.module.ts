@@ -5,6 +5,10 @@ import { BrowserModule } from '@angular/platform-browser';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { PatientTableComponent } from './components/patient-table/patient-table.component';
+import { ScrollingModule } from '@angular/cdk/scrolling';
+import { MatButtonModule } from "@angular/material/button"
+import { MatProgressBarModule } from "@angular/material/progress-bar"
+
 
 @NgModule({
   declarations: [
@@ -14,7 +18,10 @@ import { PatientTableComponent } from './components/patient-table/patient-table.
   imports: [
     BrowserModule,
     AppRoutingModule,
-    HttpClientModule
+    HttpClientModule,
+    ScrollingModule,
+    MatButtonModule,
+    MatProgressBarModule 
   ],
   providers: [],
   bootstrap: [AppComponent]

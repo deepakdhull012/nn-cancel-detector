@@ -1,4 +1,9 @@
-import { AfterViewInit, ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectorRef,
+  Component,
+  OnInit,
+} from '@angular/core';
 import { Brain } from './core/interfaces/brain.interface';
 import { ILungCancerData } from './core/interfaces/data.interface';
 import { NeuronUI } from './core/interfaces/neuron-ui.interface';
@@ -13,50 +18,56 @@ import { PointsClassifierService } from './core/services/points-classifier.servi
 export class AppComponent implements OnInit, AfterViewInit {
   private brain: Brain = {
     inputDimension: 13,
-    outputDimension: 2,
-    learningRate: 0.1,
+    outputDimension: 1,
+    learningRate: 0.05,
     noOfHiddenLayers: 1,
-    noOfNeuronsPerLayer: 6,
+    noOfNeuronsPerLayer: 16,
   };
+  public trainingInProcess = false;
+  public nonCancerousFalse = this.pointsClassifier.nonCancerousFalse;
   private neurons: Array<NeuronUI> = [];
   private canvas: any;
 
   public trainingData: ILungCancerData[] = [];
   public testData: ILungCancerData[] = [];
+  public modelVisible = true;
 
   constructor(
-    private pointsClassifier: PointsClassifierService,
+    public pointsClassifier: PointsClassifierService,
     public brainService: BrainService,
     private cdr: ChangeDetectorRef
   ) {
     this.pointsClassifier.initClassifier(this.brain);
-
   }
 
   ngOnInit(): void {
-    this.pointsClassifier.onClassificationDone.subscribe(_ => {
+    this.pointsClassifier.onClassificationDone.subscribe((_) => {
       this.trainingData = this.pointsClassifier.trainingData;
       this.testData = this.pointsClassifier.testData;
-
-    })
-  }
-
-  runTrainIteration(): void {
-    this.pointsClassifier.trainCommand.next();
+    });
   }
 
   runTest(): void {
     this.pointsClassifier.testCommand.next();
   }
 
+  toggleNN(): void {
+    this.modelVisible = !this.modelVisible;
+  }
+
+  trainBy1Step(): void {
+    this.pointsClassifier.trainCommand.next();
+  }
+
   backgroundTraining(): void {
-    this.pointsClassifier.backgroundTraining.next();
+    if (this.trainingInProcess) {
+      this.trainingInProcess = false;
+      this.pointsClassifier.stopTraining.next();
+    } else {
+      this.trainingInProcess = true;
+      this.pointsClassifier.backgroundTraining.next();
+    }
   }
-
-  stop(): void {
-    this.pointsClassifier.stopTraining.next();
-  }
-
   ngAfterViewInit(): void {
     this.initCanvas();
   }
@@ -65,17 +76,12 @@ export class AppComponent implements OnInit, AfterViewInit {
     const noOfLayers = this.brain.noOfHiddenLayers + 2;
     const ctx = this.canvas.getContext('2d');
 
-
-
-
-
-var img = new Image();
-img.onload = function() {
-    ctx.drawImage(img, 20, 420, 50, 50);
-    // do other canvas handling here!
-}
-img.src = "assets/images/bee.png";
-    
+    // var img = new Image();
+    // img.onload = function () {
+    //   ctx.drawImage(img, 20, 420, 50, 50);
+    //   // do other canvas handling here!
+    // };
+    // img.src = 'assets/images/bee.png';
 
     for (let layer = 1; layer <= noOfLayers; layer++) {
       if (layer === 1) {

@@ -1,8 +1,13 @@
-<button (click)="runTrainIteration()">Run Train iteration</button>
-<button (click)="backgroundTraining()">Background training</button>
-<button (click)="stop()">Stop training</button>
-<patient-table [patientData]="trainingData.slice(0,50)"></patient-table>
+<button mat-raised-button color="primary" (click)="backgroundTraining()">
+    <span *ngIf="trainingInProcess">Stop Training</span>
+    <span *ngIf="!trainingInProcess">Train the Network in background</span>
+</button>
+<button mat-raised-button color="warn" (click)="runTest()">Test the network</button>
+<div class="clearfix"></div>
+<patient-table class="half" [label]="'Training Data'" [nonCancerousFalse]="pointsClassifier.nonCancerousFalse"
+    [patientData]="trainingData"></patient-table>
+<patient-table class="half" [label]="'Test Data'" [nonCancerousFalse]="pointsClassifier.nonCancerousFalse"
+    [patientData]="testData"></patient-table>
 
-<button (click)="runTest()">Test</button>
-<patient-table [patientData]="testData"></patient-table>
-<canvas id="canvas"></canvas>
+<canvas class="model-holder" [hidden]="!modelVisible" id="canvas"></canvas>
+<div class="clearfix"></div>
